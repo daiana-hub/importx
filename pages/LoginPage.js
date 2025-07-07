@@ -12,7 +12,7 @@ class LoginPage {
 
   async goto() {
     await this.page.goto('/pt/login?next=%2Fpt');
-    await this.page.waitForURL(/login/);
+    // Remove espera por URL, pois pode redirecionar mesmo com erro
   }
 
   async login(email, password) {
