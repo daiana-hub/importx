@@ -1,22 +1,37 @@
+require('dotenv').config();
 const { test, expect } = require('@playwright/test');
+const { LoginPage } = require('../pages/LoginPage');
 const { EmbarquesPage } = require('../pages/EmbarquesPage');
+const embarquesLocators = require('../locators/embarques');
+test.use({ launchOptions: { slowMo: 500 } });
 
 // Teste de busca por fornecedor
 
-test('buscar embarque por fornecedor Fornecedor 280', async ({ page }) => {
+test('buscar embarque por fornecedor Fornecedor 194', async ({ page }) => {
+
+  // Realizar login manual
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.login(process.env.USER_EMAIL, process.env.USER_PASSWORD);
+
   // Acessar tela de embarques
   const embarquesPage = new EmbarquesPage(page);
   await embarquesPage.goto();
 
-  // Pesquisar por fornecedor Fornecedor 280
-  await embarquesPage.pesquisar('Fornecedor 280');
+  // Digitar o nome do fornecedor mais devagar usando locator correto
+  const termo = 'Fornecedor 194';
+  await embarquesPage.pesquisaInput.waitFor({ state: 'visible', timeout: 10000 });
+  await embarquesPage.pesquisaInput.click();
+  await embarquesPage.pesquisaInput.type(termo, { delay: 200 });
+  await page.keyboard.press('Enter');
 
-  // Espera extra para garantir carregamento
-  await page.waitForTimeout(3000);
-  await page.screenshot({ path: 'fornecedor-280-debug.png' });
+  // Screenshot para debug
+  await page.screenshot({ path: 'fornecedor-194-debug.png' });
 
-  // Verificar se pelo menos um resultado esperado aparece
-  const resultados = page.locator('h2.sc-eced4ead-0', { hasText: 'Fornecedor 280' });
+  // Aguarda que pelo menos um resultado com o termo esteja visível antes de contar
+  const resultados = page.locator(embarquesLocators.resultFornecedor).filter({ hasText: termo });
+  await resultados.first().waitFor({ state: 'visible', timeout: 10000 });
   const count = await resultados.count();
+  console.log('Quantidade de resultados encontrados:', count);
   expect(count).toBeGreaterThan(0);
 });

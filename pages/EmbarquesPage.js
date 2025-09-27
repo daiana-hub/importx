@@ -1,19 +1,23 @@
 // pages/EmbarquesPage.js
+const embarquesLocators = require('../locators/embarques');
+
 class EmbarquesPage {
   /**
    * @param {import('@playwright/test').Page} page
    */
   constructor(page) {
     this.page = page;
-    this.pesquisaInput = page.getByTestId('base-input');
-    this.resultFornecedor = page.locator('h2.sc-eced4ead-0');
-    this.resultList = page.getByTestId('badge-importer-name');
+    // Ajusta para buscar o campo de pesquisa exclusivo da tela de embarques
+    this.pesquisaInput = page.locator('[data-testid="base-input"][placeholder*="Pesquisar"]');
+    this.resultFornecedor = page.locator(embarquesLocators.resultFornecedor);
+    this.resultList = page.locator(embarquesLocators.resultList);
+    this.boardingNumber = page.locator(embarquesLocators.boardingNumber);
   }
 
   async goto() {
     await this.page.goto('/pt');
     await this.page.waitForURL(/\/pt$/);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async pesquisar(termo) {
@@ -31,6 +35,10 @@ class EmbarquesPage {
   async resultadosVisiveis(termo) {
     await this.page.waitForTimeout(1000);
     return this.resultList.filter({ hasText: termo });
+  }
+
+  async resultadoPorNumero(numero) {
+    return this.page.locator(embarquesLocators.boardingNumberWithText(numero));
   }
 }
 

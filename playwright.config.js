@@ -12,7 +12,7 @@ const config = {
     video: 'off',
     screenshot: 'only-on-failure',
     baseURL: 'https://qas.importx.app',
-    storageState: 'storageState.json',
+    // storageState removido daqui
   },
 };
 
